@@ -11,11 +11,11 @@ function! csharp#fqn()
   return namespace . '.' . class
 endfunction
 
-function! csharp#nunit-tests()
+function! csharp#nunitTests()
   execute "AsyncTermExecute run-nunit-tests.ps1"
 endfunction
 
-function! csharp#nunit-test()
+function! csharp#nunitTest()
   let fqn = csharp#fqn()
   execute "AsyncTermExecute run-nunit-tests.ps1 " . fqn
 endfunction
