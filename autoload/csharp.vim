@@ -19,3 +19,17 @@ function! csharp#nunitTest()
   let fqn = csharp#fqn()
   execute "AsyncTermExecute run-nunit-tests.ps1 " . fqn
 endfunction
+
+function! csharp#moveFile()
+  let filename = input({ 'prompt': 'enter filename: ',
+    \ 'completion': 'file',
+    \ 'default': expand('%')
+    \ })
+
+  execute 'write ' . filename
+  call nvim_buf_set_lines(bufnr('%'), 0, -1, v:true, [])
+  write
+  call system('rm ' . expand('%'))
+  Sayonara!
+  execute 'edit ' . filename
+endfunction
