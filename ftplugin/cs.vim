@@ -45,3 +45,5 @@ nnoremap <buffer> <Leader>sp :OmniSharpStopServer<CR>
 
 " Add syntax highlighting for types and interfaces
 nnoremap <buffer> <Leader>th :OmniSharpHighlightTypes<CR>
+
+nnoremap <buffer> <Leader>mv :call csharp#moveFile()<cr>
