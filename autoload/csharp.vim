@@ -68,10 +68,15 @@ endfunction
 
 function! csharp#addFileToCsproj()
   let csproj = csharp#findCsproj()
-
-  let fileAbsolutePath = expand('%:p')
   let csprojDir = fnamemodify(csproj, ':p:h') . '\'
-  let relativePath = s:relativePath(fileAbsolutePath, csprojDir)
+
+  let opt = { 'prompt': 'path: ', 'completion': 'file', 'default': csprojDir }
+  let path = input(opt)
+
+  execute 'edit ' . path
+  let csproj = csharp#findCsproj()
+  let csprojDir = fnamemodify(csproj, ':p:h') . '\'
+  let relativePath = s:relativePath(path, csprojDir)
 
   let insertion = '    <Compile Include="' . relativePath . '" />'
   let insertionPattern = trim(s:toSearchPattern(insertion))
@@ -87,6 +92,10 @@ function! csharp#addFileToCsproj()
 
   call insert(content, insertion, insertionIndex)
   call csharp#writeCsproj(content, csproj)
+endfunction
+
+function! csharp#moveFile()
+  echom "not yet implemented"
 endfunction
 
 function s:relativePath(absolutePath, directory)
