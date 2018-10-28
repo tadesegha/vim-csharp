@@ -47,6 +47,17 @@ endfunction
 
 function! csharp#deleteItem()
   let path = expand('%:p')
+  let opt = {
+        \'prompt': 'delete item: ',
+        \'completion': 'file',
+        \'default': path
+        \}
+  let confirmation = input(opt)
+  if (confirmation == '')
+    echo 'delete item cancelled'
+    return
+  endif
+
   call s:removeFromCsproj(path)
   call delete(path)
   bd!
