@@ -20,18 +20,56 @@ function! csharp#nunitTest()
   execute "AsyncTermExecute run-nunit-tests.ps1 " . fqn
 endfunction
 
-function! csharp#moveFile()
-  let filename = input({ 'prompt': 'enter filename: ',
-    \ 'completion': 'file',
-    \ 'default': expand('%')
-    \ })
+function! csharp#newItem(...)
+  if (a:0)
+    let path = a:1
+    let csproj = s:findCsproj(path)
+  else
+    let csproj = s:findCsproj(expand('%:p'))
+    let csprojDir = fnamemodify(csproj, ':p:h') . '\'
 
-  execute 'write ' . filename
-  call nvim_buf_set_lines(bufnr('%'), 0, -1, v:true, [])
+    let opt = {
+          \'prompt': 'new item: ',
+          \'completion': 'file',
+          \'default': csprojDir
+          \}
+    let path = input(opt)
+    if (path == '')
+      echo 'new item cancelled'
+      return
+    endif
+  endif
+
+  call s:addToCsproj(path, csproj)
+  execute 'edit ' . path
   write
-  call system('rm ' . expand('%'))
-  Sayonara!
-  execute 'edit ' . filename
+endfunction
+
+function! csharp#deleteItem()
+  let path = expand('%:p')
+  call s:removeFromCsproj(path)
+  call delete(path)
+  bd!
+endfunction
+
+function! csharp#moveItem()
+  let opt = {
+        \'prompt': 'move item: ',
+        \'completion': 'file',
+        \'default': expand('%:p')
+        \}
+  let path = input(opt)
+  if (path == '')
+    echo 'move item cancelled'
+    return
+  endif
+
+  let content = readfile(expand('%'), 'b')
+  call writefile(content, path, 'b')
+
+  call csharp#deleteItem()
+  call s:addToCsproj(path)
+  execute 'edit ' . path
 endfunction
 
 function! s:findCsproj(absolutePath)
@@ -54,7 +92,7 @@ function! s:readCsproj(csproj)
     throw "csproj not found in path hierarchy"
   endif
 
-  return readfile(a:csproj)
+  return readfile(a:csproj, 'b')
 endfunction
 
 function! s:writeCsproj(content, csproj)
@@ -62,26 +100,7 @@ function! s:writeCsproj(content, csproj)
     throw "csproj found but it can't be edited"
   endif
 
-  call writefile(a:content, a:csproj)
-endfunction
-
-function! csharp#newItem()
-  let csproj = s:findCsproj(expand('%:p'))
-  let csprojDir = fnamemodify(csproj, ':p:h') . '\'
-
-  let opt = { 'prompt': 'path: ', 'completion': 'file', 'default': csprojDir }
-  let path = input(opt)
-
-  call s:addToCsproj(path, csproj)
-  execute 'edit ' . path
-  write
-endfunction
-
-function! csharp#deleteItem()
-  let path = expand('%:p')
-  call s:removeFromCsproj(path)
-  call delete(path)
-  bd!
+  call writefile(a:content, a:csproj, 'b')
 endfunction
 
 function! s:addToCsproj(path, ...)
@@ -120,11 +139,6 @@ function! s:removeFromCsproj(path, ...)
 
   call remove(content, removalIndex)
   call s:writeCsproj(content, csproj)
-endfunction
-
-function! csharp#moveItem()
-  call csharp#deleteItem()
-  call csharp#newItem()
 endfunction
 
 function! s:relativePath(absolutePath, directory)
