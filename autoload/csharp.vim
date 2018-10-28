@@ -11,7 +11,7 @@ function! csharp#fqn()
   return namespace . '.' . class
 endfunction
 
-function! csharp#nunitTests()
+function! csharp#nunitTests(...)
   let csproj = s:findCsproj(expand('%:p'))
   if match(csproj, 'Test') == -1
     echoerr 'could not find a test csproj file'
@@ -22,13 +22,22 @@ function! csharp#nunitTests()
   let csprojDir = fnamemodify(csproj, ':p:h') . '\'
   let csprojFilename = fnamemodify(csproj, ':t:r')
   let testAssembly = findfile(csprojFilename . '.dll', "bin/debug/**")
-  call term#executeInTerm('shell', 'if [[ $? -eq 0 ]] ; then powershell -noprofile -command "nunit-console.exe ' . fnamemodify(testAssembly, ':p') . '"; fi')
+
+  let command = 'if [[ $? -eq 0 ]] ;'
+  let command = command . ' then powershell -noprofile -command'
+  let command = command . ' "nunit-console.exe ' . fnamemodify(testAssembly, ':p')
+  if (a:0)
+    let command = command . ' /run=' . a:1
+  endif
+  let command = command . '"; fi'
+
+  call term#executeInTerm('shell', command)
   call term#defaultTerm()
 endfunction
 
 function! csharp#nunitTest()
   let fqn = csharp#fqn()
-  execute "AsyncTermExecute run-nunit-tests.ps1 " . fqn
+  call csharp#nunitTests(fqn)
 endfunction
 
 function! csharp#newItem(...)
