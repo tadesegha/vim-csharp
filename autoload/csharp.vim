@@ -45,17 +45,21 @@ function! csharp#newItem(...)
   write
 endfunction
 
-function! csharp#deleteItem()
+function! csharp#deleteItem(...)
+  let confirmDeletion = a:0 ? a:1 : v:true
   let path = expand('%:p')
-  let opt = {
-        \'prompt': 'delete item: ',
-        \'completion': 'file',
-        \'default': path
-        \}
-  let confirmation = input(opt)
-  if (confirmation == '')
-    echo 'delete item cancelled'
-    return
+
+  if (confirmDeletion)
+    let opt = {
+          \'prompt': 'delete item: ',
+          \'completion': 'file',
+          \'default': path
+          \}
+    let confirmation = input(opt)
+    if (confirmation == '')
+      echo 'delete item cancelled'
+      return
+    endif
   endif
 
   call s:removeFromCsproj(path)
@@ -78,7 +82,7 @@ function! csharp#moveItem()
   let content = readfile(expand('%'), 'b')
   call writefile(content, path, 'b')
 
-  call csharp#deleteItem()
+  call csharp#deleteItem(v:false)
   call s:addToCsproj(path)
   execute 'edit ' . path
 endfunction
