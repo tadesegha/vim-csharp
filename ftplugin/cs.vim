@@ -11,6 +11,7 @@ setlocal tabstop=4
 nnoremap <buffer> <LocalLeader>ni :call csharp#newItem()<cr>
 nnoremap <buffer> <LocalLeader>mi :call csharp#moveItem()<cr>
 nnoremap <buffer> <LocalLeader>di : call csharp#deleteItem()<cr>
+
 nnoremap <buffer> <LocalLeader>rat :call csharp#nunitTests()<cr>
 nnoremap <buffer> <LocalLeader>rt :call csharp#nunitTest()<cr>
 

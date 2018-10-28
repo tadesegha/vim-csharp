@@ -83,19 +83,27 @@ function! csharp#moveItem()
   execute 'edit ' . path
 endfunction
 
-function! s:findCsproj(absolutePath)
+function! s:findPattern(absolutePath, pattern)
   let components = split(a:absolutePath, '\')
 
   let parent = components[0]
   for component in components[1: ]
     let parent = parent . '\' . component
-    let csproj = expand(parent . "\\*.csproj")
-    if (filereadable(csproj))
-      return csproj
+    let file = expand(parent . '\\' . a:pattern)
+    if (filereadable(file))
+      return file
     endif
   endfor
 
-  echoerr "csproj not found"
+  echoerr "file matching pattern not found. pattern: " . pattern . " | path: " . absolutePath
+endfunction
+
+function! s:findSln(absolutePath)
+  return s:findPattern(a:absolutePath, '*.sln')
+endfunction
+
+function! s:findCsproj(absolutePath)
+  return s:findPattern(a:absolutePath, '*.csproj')
 endfunction
 
 function! s:readCsproj(csproj)
