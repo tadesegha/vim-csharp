@@ -1,3 +1,7 @@
+function! csharp#runOmni()
+  call system('start powershell.exe -noprofile -noexit -command omnisharp.exe -s c:/dev/gcts/transcanada.gcts.sln')
+endfunction
+
 function! csharp#fqn()
   let save_cursor = getcurpos()
 
