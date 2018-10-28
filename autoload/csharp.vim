@@ -95,12 +95,12 @@ function! s:findCsproj(absolutePath)
     endif
   endfor
 
-  throw "csproj not found"
+  echoerr "csproj not found"
 endfunction
 
 function! s:readCsproj(csproj)
   if (!filereadable(a:csproj))
-    throw "csproj not found in path hierarchy"
+    echoerr "csproj not found in path hierarchy"
   endif
 
   return readfile(a:csproj, 'b')
@@ -108,7 +108,7 @@ endfunction
 
 function! s:writeCsproj(content, csproj)
   if (!filewritable(a:csproj))
-    throw "csproj found but it can't be edited"
+    echoerr "csproj found but it can't be edited"
   endif
 
   call writefile(a:content, a:csproj, 'b')
@@ -123,12 +123,12 @@ function! s:addToCsproj(path, ...)
   let insertionPattern = trim(s:toSearchPattern(insertion))
   let content = s:readCsproj(csproj)
   if s:findInList(content, insertionPattern) != -1
-    throw 'csproj already contains file'
+    echoerr 'csproj already contains file'
   endif
 
   let insertionIndex = s:findInList(content, '<Compile Include=".*" />')
   if insertionIndex == -1
-    throw "could not find a line in csproj matching '<Compile Include=\".*\" />'. unable to determine where to add new file in csproj."
+    echoerr "could not find a line in csproj matching '<Compile Include=\".*\" />'. unable to determine where to add new file in csproj."
   endif
 
   call insert(content, insertion, insertionIndex)
@@ -145,7 +145,7 @@ function! s:removeFromCsproj(path, ...)
   let removalIndex = s:findInList(content, removalPattern)
 
   if removalIndex == -1
-    throw 'did not find current file in csproj'
+    echoerr 'did not find current file in csproj'
   endif
 
   call remove(content, removalIndex)
