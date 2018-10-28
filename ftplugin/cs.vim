@@ -9,8 +9,8 @@ setlocal tabstop=4
 
 " Custom mappings
 nnoremap <buffer> <LocalLeader>ni :call csharp#newItem()<cr>
-nnoremap <buffer> <LocalLeader>mv :call csharp#moveItem()<cr>
-nnoremap <buffer> <LocalLeader>rm : call csharp#deleteItem()<cr>
+nnoremap <buffer> <LocalLeader>mi :call csharp#moveItem()<cr>
+nnoremap <buffer> <LocalLeader>di : call csharp#deleteItem()<cr>
 nnoremap <buffer> <LocalLeader>rat :call csharp#nunitTests()<cr>
 nnoremap <buffer> <LocalLeader>rt :call csharp#nunitTest()<cr>
 
