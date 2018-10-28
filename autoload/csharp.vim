@@ -49,7 +49,7 @@ function! s:findCsproj(absolutePath)
   throw "csproj not found"
 endfunction
 
-function! csharp#readCsproj(csproj)
+function! s:readCsproj(csproj)
   if (!filereadable(a:csproj))
     throw "csproj not found in path hierarchy"
   endif
@@ -57,7 +57,7 @@ function! csharp#readCsproj(csproj)
   return readfile(a:csproj)
 endfunction
 
-function! csharp#writeCsproj(content, csproj)
+function! s:writeCsproj(content, csproj)
   if (!filewritable(a:csproj))
     throw "csproj found but it can't be edited"
   endif
@@ -77,6 +77,13 @@ function! csharp#newItem()
   write
 endfunction
 
+function! csharp#deleteItem()
+  let path = expand('%:p')
+  call s:removeFromCsproj(path)
+  call delete(path)
+  bd!
+endfunction
+
 function! s:addToCsproj(path, ...)
   let csproj = a:0 ? a:1 : s:findCsproj(a:path)
   let csprojDir = fnamemodify(csproj, ':p:h') . '\'
@@ -84,7 +91,7 @@ function! s:addToCsproj(path, ...)
 
   let insertion = '    <Compile Include="' . relativePath . '" />'
   let insertionPattern = trim(s:toSearchPattern(insertion))
-  let content = csharp#readCsproj(csproj)
+  let content = s:readCsproj(csproj)
   if s:findInList(content, insertionPattern) != -1
     throw 'csproj already contains file'
   endif
@@ -95,15 +102,15 @@ function! s:addToCsproj(path, ...)
   endif
 
   call insert(content, insertion, insertionIndex)
-  call csharp#writeCsproj(content, csproj)
+  call s:writeCsproj(content, csproj)
 endfunction
 
-function! csharp#deleteItem()
-  let csproj = s:findCsproj(expand('%:p'))
+function! s:removeFromCsproj(path, ...)
+  let csproj = a:0 ? a:1 : s:findCsproj(a:path)
   let csprojDir = fnamemodify(csproj, ':p:h') . '\'
-  let relativePath = s:relativePath(expand('%:p'), csprojDir)
+  let relativePath = s:relativePath(a:path, csprojDir)
 
-  let content = csharp#readCsproj(csproj)
+  let content = s:readCsproj(csproj)
   let removalPattern = s:toSearchPattern('<Compile Include="' . relativePath . '"')
   let removalIndex = s:findInList(content, removalPattern)
 
@@ -112,7 +119,7 @@ function! csharp#deleteItem()
   endif
 
   call remove(content, removalIndex)
-  call csharp#writeCsproj(content, csproj)
+  call s:writeCsproj(content, csproj)
 endfunction
 
 function! csharp#moveItem()
