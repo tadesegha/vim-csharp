@@ -36,7 +36,14 @@ function! csharp#nunitTests(...)
 endfunction
 
 function! csharp#nunitTest()
-  let fqn = csharp#fqn()
+  OmniSharpNavigateUp
+
+  let testName = '.' . expand('<cword>')
+  if testName == ('.' . expand('%:t:r'))
+    let testName = ''
+  endif
+
+  let fqn = csharp#fqn() . testName
   call csharp#nunitTests(fqn)
 endfunction
 
