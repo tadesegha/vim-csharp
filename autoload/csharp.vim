@@ -12,7 +12,18 @@ function! csharp#fqn()
 endfunction
 
 function! csharp#nunitTests()
-  execute "AsyncTermExecute run-nunit-tests.ps1"
+  let csproj = s:findCsproj(expand('%:p'))
+  if match(csproj, 'Test') == -1
+    echoerr 'could not find a test csproj file'
+  endif
+
+  call csharp#build()
+
+  let csprojDir = fnamemodify(csproj, ':p:h') . '\'
+  let csprojFilename = fnamemodify(csproj, ':t:r')
+  let testAssembly = findfile(csprojFilename . '.dll', "bin/debug/**")
+  call term#executeInTerm('shell', 'if [[ $? -eq 0 ]] ; then powershell -noprofile -command "nunit-console.exe ' . fnamemodify(testAssembly, ':p') . '"; fi')
+  call term#defaultTerm()
 endfunction
 
 function! csharp#nunitTest()
@@ -87,13 +98,23 @@ function! csharp#moveItem()
   execute 'edit ' . path
 endfunction
 
+function! csharp#build()
+  if (!executable('msbuild.exe'))
+    echoerr 'could not find msbuild.exe'
+  endif
+
+  let sln = s:findSln(expand('%:p'))
+  call term#executeInTerm('shell', 'powershell -noprofile -command "msbuild.exe /v:q ' . sln . '"')
+  call term#defaultTerm()
+endfunction
+
 function! s:findPattern(absolutePath, pattern)
   let components = split(a:absolutePath, '\')
 
   let parent = components[0]
   for component in components[1: ]
     let parent = parent . '\' . component
-    let file = expand(parent . '\\' . a:pattern)
+    let file = expand(parent . '\' . a:pattern)
     if (filereadable(file))
       return file
     endif
