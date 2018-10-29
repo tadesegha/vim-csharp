@@ -53,24 +53,16 @@ function! csharp#nunitTest()
   call csharp#nunitTests(fqn)
 endfunction
 
-function! csharp#newItem(...)
-  if (a:0)
-    let path = a:1
-    let csproj = s:findCsproj(path)
-  else
-    let csproj = s:findCsproj(expand('%:p'))
-    let csprojDir = fnamemodify(csproj, ':p:h') . '\'
-
-    let opt = {
-          \'prompt': 'new item: ',
-          \'completion': 'file',
-          \'default': csprojDir
-          \}
-    let path = input(opt)
-    if (path == '')
-      echo 'new item cancelled'
-      return
-    endif
+function! csharp#newItem()
+  let opt = {
+        \'prompt': 'new item: ',
+        \'completion': 'file',
+        \'default': expand('%:p:h') . '\'
+        \}
+  let path = input(opt)
+  if (path == '')
+    echo 'new item cancelled'
+    return
   endif
 
   call s:addToCsproj(path)
