@@ -71,7 +71,7 @@ function! csharp#newItem(...)
     endif
   endif
 
-  call s:addToCsproj(path, csproj)
+  call s:addToCsproj(path)
   execute 'edit ' . path
   write
 endfunction
@@ -167,7 +167,7 @@ function! s:writeCsproj(content, csproj)
   call writefile(a:content, a:csproj, 'b')
 endfunction
 
-function! s:addToCsproj(path, ...)
+function! s:addToCsproj(path)
   let csproj = a:0 ? a:1 : s:findCsproj(a:path)
   let csprojDir = fnamemodify(csproj, ':p:h') . '\'
   let relativePath = s:relativePath(a:path, csprojDir)
