@@ -13,6 +13,7 @@ function! csharp#namespace()
 endfunction
 
 function! csharp#fqn()
+  let class = expand('%:t:r')
   return csharp#namespace() . '.' . class
 endfunction
 
@@ -26,7 +27,7 @@ function! csharp#nunitTests(...)
 
   let csprojDir = fnamemodify(csproj, ':p:h') . '\'
   let csprojFilename = fnamemodify(csproj, ':t:r')
-  let testAssembly = findfile(csprojFilename . '.dll', "bin/debug/**")
+  let testAssembly = findfile(csprojFilename . '.dll', csprojDir . "bin/debug/**")
 
   let command = 'if [[ $? -eq 0 ]] ;'
   let command = command . ' then powershell -noprofile -command'
