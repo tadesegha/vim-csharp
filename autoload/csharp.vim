@@ -2,17 +2,18 @@ function! csharp#runOmni()
   call system('start powershell.exe -noprofile -noexit -command omnisharp.exe -s c:/dev/gcts/transcanada.gcts.sln')
 endfunction
 
+function! csharp#namespace()
+  let path = expand('%:p')
+  let csproj = s:findCsproj(path)
+  let csprojDir = fnamemodify(csproj, ':p:h')
+  let relativePath = s:relativePath(path, csprojDir)
+
+  let other = substitute(relativePath, '\', '.', 'g')
+  return fnamemodify(csprojDir, ':t') . fnamemodify(other, ':r:r')
+endfunction
+
 function! csharp#fqn()
-  let save_cursor = getcurpos()
-
-  call search('namespace \zs')
-  let namespace = expand('<cWORD>')
-
-  call search('class \zs')
-  let class = expand('<cWORD>')
-
-  call setpos('.', save_cursor)
-  return namespace . '.' . class
+  return csharp#namespace() . '.' . class
 endfunction
 
 function! csharp#nunitTests(...)
@@ -168,7 +169,7 @@ function! s:writeCsproj(content, csproj)
 endfunction
 
 function! s:addToCsproj(path)
-  let csproj = a:0 ? a:1 : s:findCsproj(a:path)
+  let csproj = s:findCsproj(a:path)
   let csprojDir = fnamemodify(csproj, ':p:h') . '\'
   let relativePath = s:relativePath(a:path, csprojDir)
 
