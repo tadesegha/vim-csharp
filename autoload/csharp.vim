@@ -125,8 +125,8 @@ function! csharp#build()
     echoerr 'could not find msbuild.exe'
   endif
 
-  let sln = s:findSln(expand('%:p'))
-  call term#executeInTerm('shell', 'powershell -noprofile -command "msbuild.exe /v:q ' . sln . '"')
+  let csproj = s:findCsproj(expand('%:p'))
+  call term#executeInTerm('shell', 'powershell -noprofile -command "msbuild.exe /v:q ' . csproj . '"')
   call term#defaultTerm()
 endfunction
 
