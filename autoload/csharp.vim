@@ -29,13 +29,11 @@ function! csharp#nunitTests(...)
   let csprojFilename = fnamemodify(csproj, ':t:r')
   let testAssembly = findfile(csprojFilename . '.dll', csprojDir . "bin/debug/**")
 
-  let command = 'if [[ $? -eq 0 ]] ;'
-  let command = command . ' then powershell -noprofile -command'
-  let command = command . ' "nunit-console.exe ' . fnamemodify(testAssembly, ':p')
+  let command = 'if [[ $? -eq 0 ]] ; then nunit-console.exe ' . s:toBashPath(fnamemodify(testAssembly, ':p'))
   if (a:0)
-    let command = command . ' /run=' . a:1
+    let command = command . ' //run=' . a:1
   endif
-  let command = command . '"; fi'
+  let command = command . '; fi'
 
   call term#executeInTerm('shell', command)
   call term#defaultTerm()
@@ -118,7 +116,7 @@ function! csharp#build()
   endif
 
   let csproj = s:findCsproj(expand('%:p'))
-  call term#executeInTerm('shell', 'powershell -noprofile -command "msbuild.exe /v:q ' . csproj . '"')
+  call term#executeInTerm('shell', 'msbuild.exe //v:q ' . s:toBashPath(csprojBash))
   call term#defaultTerm()
 endfunction
 
@@ -221,4 +219,9 @@ function! s:findInList(list, pattern)
   endfor
 
   return -1
+endfunction
+
+function! s:toBashPath(path)
+  let bashPath = '/' . substitute(a:path, '\', '/', 'g')
+  return substitute(bashPath, '/c:/', '/c/', '')
 endfunction
