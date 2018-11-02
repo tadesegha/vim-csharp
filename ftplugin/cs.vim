@@ -12,9 +12,10 @@ nnoremap <buffer> <LocalLeader>ni :call csharp#newItem()<cr>
 nnoremap <buffer> <LocalLeader>mi :call csharp#moveItem()<cr>
 nnoremap <buffer> <LocalLeader>di :call csharp#deleteItem()<cr>
 nnoremap <buffer> <LocalLeader>b :call csharp#build()<cr>
+nnoremap <buffer> <LocalLeader>e :call csharp#openFile()<cr>
 
-nnoremap <buffer> <LocalLeader>rat :call csharp#nunitTests()<cr>
-nnoremap <buffer> <LocalLeader>rt :call csharp#nunitTest()<cr>
+nnoremap <buffer> <LocalLeader>rat :w \| call csharp#nunitTests()<cr>
+nnoremap <buffer> <LocalLeader>rt :w \| call csharp#nunitTest()<cr>
 
 " OmniSharp commands
 command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
@@ -34,6 +35,7 @@ nnoremap <buffer> <LocalLeader>fu :call setqflist([]) \| OmniSharpFindUsages<CR>
 nnoremap <buffer> <LocalLeader>fx :OmniSharpFixUsings<CR>
 nnoremap <buffer> <LocalLeader>gd :OmniSharpGotoDefinition<CR>
 nnoremap <buffer> <LocalLeader>rn :update \| OmniSharpRename<CR>
+nnoremap <buffer> <LocalLeader>ri :update \| OmniSharpRename<CR>
 nnoremap <buffer> <LocalLeader>sp :OmniSharpStopServer<CR>
 nnoremap <buffer> <LocalLeader>ss :OmniSharpStartServer<CR>
 nnoremap <buffer> <LocalLeader>th :OmniSharpHighlightTypes<CR>

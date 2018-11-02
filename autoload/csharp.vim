@@ -1,3 +1,18 @@
+function! csharp#openFile()
+  let temp = $FZF_DEFAULT_COMMAND
+
+  try
+    let indexOfFirstSpace = match(temp, ' ')
+    let program = temp[: indexOfFirstSpace]
+    let params = temp[indexOfFirstSpace :]
+    let $FZF_DEFAULT_COMMAND = program . '--csharp' . params
+
+    FZF
+  finally
+    let $FZF_DEFAULT_COMMAND = temp
+  endtry
+endfunction
+
 function! csharp#runOmni()
   call system('start powershell.exe -noprofile -noexit -command omnisharp.exe -s c:/dev/gcts/transcanada.gcts.sln')
 endfunction
@@ -20,7 +35,7 @@ endfunction
 function! csharp#nunitTests(...)
   let csproj = s:findCsproj(expand('%:p'))
   if match(csproj, 'Test') == -1
-    echoerr 'could not find a test csproj file'
+    throw 'could not find a test csproj file'
   endif
 
   call csharp#build()
@@ -40,12 +55,15 @@ function! csharp#nunitTests(...)
 endfunction
 
 function! csharp#nunitTest()
+  let cursorPosition = getcurpos()
   OmniSharpNavigateUp
 
   let testName = '.' . expand('<cword>')
-  if testName == ('.' . expand('%:t:r'))
+  if testName == ('.' . expand('%:t:r')) || s:match(testName, '^.using$') || s:match(testName, '^.Setup$')
     let testName = ''
   endif
+
+  call setpos('.', cursorPosition)
 
   let fqn = csharp#fqn() . testName
   call csharp#nunitTests(fqn)
@@ -61,6 +79,10 @@ function! csharp#newItem()
   if (path == '')
     echo 'new item cancelled'
     return
+  endif
+
+  if !s:endsWith(path, '.cs')
+    let path = path . '.cs'
   endif
 
   call s:addToCsproj(path)
@@ -86,6 +108,8 @@ function! csharp#deleteItem(...)
   endif
 
   call s:removeFromCsproj(path)
+  " omnisharp needs buffer to be emptied so it cleans up
+  execute ':%d'
   call delete(path)
   bd!
 endfunction
@@ -94,12 +118,16 @@ function! csharp#moveItem()
   let opt = {
         \'prompt': 'move item: ',
         \'completion': 'file',
-        \'default': expand('%:p')
+        \'default': expand('%:p:h') . '\'
         \}
   let path = input(opt)
   if (path == '')
     echo 'move item cancelled'
     return
+  endif
+
+  if !s:endsWith(path, '.cs')
+    let path = path . '.cs'
   endif
 
   let content = readfile(expand('%'), 'b')
@@ -112,11 +140,11 @@ endfunction
 
 function! csharp#build()
   if (!executable('msbuild.exe'))
-    echoerr 'could not find msbuild.exe'
+    throw 'could not find msbuild.exe'
   endif
 
   let csproj = s:findCsproj(expand('%:p'))
-  call term#executeInTerm('shell', 'msbuild.exe //v:q ' . s:toBashPath(csprojBash))
+  call term#executeInTerm('shell', 'msbuild.exe //v:q ' . s:toBashPath(csproj))
   call term#defaultTerm()
 endfunction
 
@@ -132,7 +160,7 @@ function! s:findPattern(absolutePath, pattern)
     endif
   endfor
 
-  echoerr "file matching pattern not found. pattern: " . pattern . " | path: " . absolutePath
+  throw "file matching pattern not found. pattern: " . pattern . " | path: " . absolutePath
 endfunction
 
 function! s:findSln(absolutePath)
@@ -145,7 +173,7 @@ endfunction
 
 function! s:readCsproj(csproj)
   if (!filereadable(a:csproj))
-    echoerr "csproj not found in path hierarchy"
+    throw "csproj not found in path hierarchy"
   endif
 
   return readfile(a:csproj, 'b')
@@ -153,7 +181,7 @@ endfunction
 
 function! s:writeCsproj(content, csproj)
   if (!filewritable(a:csproj))
-    echoerr "csproj found but it can't be edited"
+    throw "csproj found but it can't be edited"
   endif
 
   call writefile(a:content, a:csproj, 'b')
@@ -168,12 +196,12 @@ function! s:addToCsproj(path)
   let insertionPattern = trim(s:toSearchPattern(insertion))
   let content = s:readCsproj(csproj)
   if s:findInList(content, insertionPattern) != -1
-    echoerr 'csproj already contains file'
+    throw 'csproj already contains file'
   endif
 
   let insertionIndex = s:findInList(content, '<Compile Include=".*" />')
   if insertionIndex == -1
-    echoerr "could not find a line in csproj matching '<Compile Include=\".*\" />'. unable to determine where to add new file in csproj."
+    throw "could not find a line in csproj matching '<Compile Include=\".*\" />'. unable to determine where to add new file in csproj."
   endif
 
   call insert(content, insertion, insertionIndex)
@@ -190,7 +218,7 @@ function! s:removeFromCsproj(path, ...)
   let removalIndex = s:findInList(content, removalPattern)
 
   if removalIndex == -1
-    echoerr 'did not find current file in csproj'
+    throw 'did not find current file in csproj'
   endif
 
   call remove(content, removalIndex)
@@ -224,4 +252,12 @@ endfunction
 function! s:toBashPath(path)
   let bashPath = '/' . substitute(a:path, '\', '/', 'g')
   return substitute(bashPath, '/c:/', '/c/', '')
+endfunction
+
+function! s:match(str, pattern)
+  return match(a:str, s:toSearchPattern(a:pattern)) != -1
+endfunction
+
+function! s:endsWith(str, pattern)
+  return s:match(a:str, a:pattern . '$')
 endfunction
