@@ -1,3 +1,27 @@
+function! csharp#goToAlternate()
+  let path = expand('%')
+  if (s:match(path, 'Test'))
+    call s:goToCode()
+  else
+    call s:goToTest()
+  endif
+endfunction
+
+function! s:goToCode()
+  let name = expand('%:t')
+  let testPattern = substitute(name, 'Tests\?\.', '.', '')
+  let command = "/usr/bin/find . -name " . testPattern . " -type f"
+  execute 'edit ' . system('bash -c "' . command . '"')
+endfunction
+
+function! s:goToTest()
+  let name = expand('%:t:r')
+  let extension = expand('%:e')
+  let testPattern = name . 'Test*.' . extension
+  let command = "/usr/bin/find . -name " . testPattern . " -type f -path '*Test*'"
+  execute 'edit ' . system('bash -c "' . command . '"')
+endfunction
+
 function! csharp#openFile()
   let temp = $FZF_DEFAULT_COMMAND
 
@@ -11,10 +35,6 @@ function! csharp#openFile()
   finally
     let $FZF_DEFAULT_COMMAND = temp
   endtry
-endfunction
-
-function! csharp#runOmni()
-  call system('start powershell.exe -noprofile -noexit -command omnisharp.exe -s c:/dev/gcts/transcanada.gcts.sln')
 endfunction
 
 function! csharp#namespace()
@@ -34,7 +54,7 @@ endfunction
 
 function! csharp#nunitTests(...)
   let csproj = s:findCsproj(expand('%:p'))
-  if match(csproj, 'Test') == -1
+  if !(s:match(csproj, 'Test'))
     throw 'could not find a test csproj file'
   endif
 
@@ -238,7 +258,7 @@ function! s:findInList(list, pattern)
   let index = 0
 
   for item in a:list
-    if match(item, a:pattern) == -1
+    if !(s:match(item, a:pattern))
       let index = index + 1
       continue
     endif

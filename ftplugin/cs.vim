@@ -13,6 +13,7 @@ nnoremap <buffer> <LocalLeader>mi :call csharp#moveItem()<cr>
 nnoremap <buffer> <LocalLeader>di :call csharp#deleteItem()<cr>
 nnoremap <buffer> <LocalLeader>b :call csharp#build()<cr>
 nnoremap <buffer> <LocalLeader>e :call csharp#openFile()<cr>
+nnoremap <buffer> <LocalLeader>ga :call csharp#goToAlternate()<cr>
 
 nnoremap <buffer> <LocalLeader>rat :w \| call csharp#nunitTests()<cr>
 nnoremap <buffer> <LocalLeader>rt :w \| call csharp#nunitTest()<cr>
