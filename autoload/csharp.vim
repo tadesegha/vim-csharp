@@ -1,4 +1,52 @@
-let pathSeparator = has('win32') || has('win64') ? '\' : '/'
+if has('win32') || has('win64')
+  let s:pathSeparator = '\'
+
+  function! s:removeFromCsproj(path, ...)
+    let csproj = a:0 ? a:1 : s:findCsproj(a:path)
+    let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
+    let relativePath = s:relativePath(a:path, csprojDir)
+
+    let content = s:readCsproj(csproj)
+    let removalPattern = s:toSearchPattern('<Compile Include="' . relativePath . '"')
+    let removalIndex = s:findInList(content, removalPattern)
+
+    if removalIndex == -1
+      throw 'did not find current file in csproj'
+    endif
+
+    call remove(content, removalIndex)
+    call s:writeCsproj(content, csproj)
+  endfunction
+
+  function! s:addToCsproj(path)
+    let csproj = s:findCsproj(a:path)
+    let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
+    let relativePath = s:relativePath(a:path, csprojDir)
+
+    let insertion = '    <Compile Include="' . relativePath . '" />'
+    let insertionPattern = trim(s:toSearchPattern(insertion))
+    let content = s:readCsproj(csproj)
+    if s:findInList(content, insertionPattern) != -1
+      throw 'csproj already contains file'
+    endif
+
+    let insertionIndex = s:findInList(content, '<Compile Include=".*" />')
+    if insertionIndex == -1
+      throw "could not find a line in csproj matching '<Compile Include=\".*\" />'. unable to determine where to add new file in csproj."
+    endif
+
+    call insert(content, insertion, insertionIndex)
+    call s:writeCsproj(content, csproj)
+  endfunction
+else
+  let s:pathSeparator = '/'
+
+  function! s:removeFromCsproj(path, ...)
+  endfunction
+
+  function! s:addToCsproj(path)
+  endfunction
+endif
 
 function! csharp#goToAlternate()
   let path = expand('%')
@@ -209,44 +257,6 @@ function! s:writeCsproj(content, csproj)
   endif
 
   call writefile(a:content, a:csproj, 'b')
-endfunction
-
-function! s:addToCsproj(path)
-  let csproj = s:findCsproj(a:path)
-  let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
-  let relativePath = s:relativePath(a:path, csprojDir)
-
-  let insertion = '    <Compile Include="' . relativePath . '" />'
-  let insertionPattern = trim(s:toSearchPattern(insertion))
-  let content = s:readCsproj(csproj)
-  if s:findInList(content, insertionPattern) != -1
-    throw 'csproj already contains file'
-  endif
-
-  let insertionIndex = s:findInList(content, '<Compile Include=".*" />')
-  if insertionIndex == -1
-    throw "could not find a line in csproj matching '<Compile Include=\".*\" />'. unable to determine where to add new file in csproj."
-  endif
-
-  call insert(content, insertion, insertionIndex)
-  call s:writeCsproj(content, csproj)
-endfunction
-
-function! s:removeFromCsproj(path, ...)
-  let csproj = a:0 ? a:1 : s:findCsproj(a:path)
-  let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
-  let relativePath = s:relativePath(a:path, csprojDir)
-
-  let content = s:readCsproj(csproj)
-  let removalPattern = s:toSearchPattern('<Compile Include="' . relativePath . '"')
-  let removalIndex = s:findInList(content, removalPattern)
-
-  if removalIndex == -1
-    throw 'did not find current file in csproj'
-  endif
-
-  call remove(content, removalIndex)
-  call s:writeCsproj(content, csproj)
 endfunction
 
 function! s:relativePath(absolutePath, directory)
