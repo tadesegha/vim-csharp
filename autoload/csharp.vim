@@ -1,3 +1,5 @@
+let pathSeparator = has('win32') || has('win64') ? '\' : '/'
+
 function! csharp#goToAlternate()
   let path = expand('%')
   if (s:match(path, 'Test'))
@@ -43,8 +45,9 @@ function! csharp#namespace()
   let csprojDir = fnamemodify(csproj, ':p:h')
   let relativePath = s:relativePath(path, csprojDir)
 
-  let other = substitute(relativePath, '\', '.', 'g')
-  return fnamemodify(csprojDir, ':t') . fnamemodify(other, ':r:r')
+  let suffix = fnamemodify(relativePath, ':h:r')
+  let suffix = (suffix == s:pathSeparator) ? '' : substitute(suffix, s:pathSeparator, '.', 'g')
+  return fnamemodify(csprojDir, ':t') . suffix
 endfunction
 
 function! csharp#fqn()
@@ -60,7 +63,7 @@ function! csharp#nunitTests(...)
 
   call csharp#build()
 
-  let csprojDir = fnamemodify(csproj, ':p:h') . '\'
+  let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
   let csprojFilename = fnamemodify(csproj, ':t:r')
   let testAssembly = findfile(csprojFilename . '.dll', csprojDir . "bin/debug/**")
 
@@ -93,7 +96,7 @@ function! csharp#newItem()
   let opt = {
         \'prompt': 'new item: ',
         \'completion': 'file',
-        \'default': expand('%:p:h') . '\'
+        \'default': expand('%:p:h') . s:pathSeparator
         \}
   let path = input(opt)
   if (path == '')
@@ -138,7 +141,7 @@ function! csharp#moveItem()
   let opt = {
         \'prompt': 'move item: ',
         \'completion': 'file',
-        \'default': expand('%:p:h') . '\'
+        \'default': expand('%:p:h') . s:pathSeparator
         \}
   let path = input(opt)
   if (path == '')
@@ -169,12 +172,13 @@ function! csharp#build()
 endfunction
 
 function! s:findPattern(absolutePath, pattern)
-  let components = split(a:absolutePath, '\')
+  let keepEmpty = 1
+  let components = split(a:absolutePath, s:pathSeparator, keepEmpty)
 
   let parent = components[0]
   for component in components[1: ]
-    let parent = parent . '\' . component
-    let file = expand(parent . '\' . a:pattern)
+    let parent = parent . s:pathSeparator . component
+    let file = expand(parent . s:pathSeparator . a:pattern)
     if (filereadable(file))
       return file
     endif
@@ -209,7 +213,7 @@ endfunction
 
 function! s:addToCsproj(path)
   let csproj = s:findCsproj(a:path)
-  let csprojDir = fnamemodify(csproj, ':p:h') . '\'
+  let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
   let relativePath = s:relativePath(a:path, csprojDir)
 
   let insertion = '    <Compile Include="' . relativePath . '" />'
@@ -230,7 +234,7 @@ endfunction
 
 function! s:removeFromCsproj(path, ...)
   let csproj = a:0 ? a:1 : s:findCsproj(a:path)
-  let csprojDir = fnamemodify(csproj, ':p:h') . '\'
+  let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
   let relativePath = s:relativePath(a:path, csprojDir)
 
   let content = s:readCsproj(csproj)
