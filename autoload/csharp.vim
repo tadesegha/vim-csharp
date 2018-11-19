@@ -11,7 +11,12 @@ function! s:goToCode()
   let name = expand('%:t')
   let testPattern = substitute(name, 'Tests\?\.', '.', '')
   let command = "/usr/bin/find . -name " . testPattern . " -type f"
-  execute 'edit ' . system('bash -c "' . command . '"')
+  let result = system('bash -c "' . command . '"')
+  if result == ''
+    echo 'no code file found'
+  else
+    execute 'edit ' . system('bash -c "' . command . '"')
+  endif
 endfunction
 
 function! s:goToTest()
@@ -19,7 +24,12 @@ function! s:goToTest()
   let extension = expand('%:e')
   let testPattern = name . 'Test*.' . extension
   let command = "/usr/bin/find . -name " . testPattern . " -type f -path '*Test*'"
-  execute 'edit ' . system('bash -c "' . command . '"')
+  let result = system('bash -c "' . command . '"')
+  if result == ''
+    echo 'no code file found'
+  else
+    execute 'edit ' . system('bash -c "' . command . '"')
+  endif
 endfunction
 
 function! csharp#openFile()
@@ -74,12 +84,12 @@ function! csharp#nunitTests(...)
   call term#defaultTerm()
 endfunction
 
-function! csharp#nunitTest()
+function! csharp#nunitTest(runAllInFile)
   let cursorPosition = getcurpos()
   OmniSharpNavigateUp
 
   let testName = '.' . expand('<cword>')
-  if testName == ('.' . expand('%:t:r')) || s:match(testName, '^.using$') || s:match(testName, '^.Setup$')
+  if a:runAllInFile || testName == ('.' . expand('%:t:r')) || s:match(testName, '^.using$') || s:match(testName, '^.Setup$')
     let testName = ''
   endif
 
