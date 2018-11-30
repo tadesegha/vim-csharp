@@ -32,7 +32,7 @@ nnoremap <buffer> <LocalLeader>ca :OmniSharpGetCodeActions<CR>
 nnoremap <buffer> <LocalLeader>cf :OmniSharpCodeFormat<CR>
 nnoremap <buffer> <LocalLeader>dc :OmniSharpDocumentation<CR>
 nnoremap <buffer> <LocalLeader>fi :call setqflist([]) \| OmniSharpFindImplementations<CR>
-nnoremap <buffer> <LocalLeader>fm :OmniSharpFindMembers<CR>
+nnoremap <buffer> <LocalLeader>fm :call setqflist([]) \| OmniSharpFindMembers<CR>
 nnoremap <buffer> <LocalLeader>fs :OmniSharpFindSymbol<CR>
 nnoremap <buffer> <LocalLeader>fu :call setqflist([]) \| OmniSharpFindUsages<CR>
 nnoremap <buffer> <LocalLeader>fx :OmniSharpFixUsings<CR>

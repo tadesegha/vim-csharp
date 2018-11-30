@@ -127,7 +127,7 @@ function! csharp#nunitTests(...)
 
   let command = 'if [[ $? -eq 0 ]] ; then nunit-console.exe ' . s:toBashPath(fnamemodify(testAssembly, ':p'))
   if (a:0)
-    let command = command . ' //run=' . a:1
+    let command = command . ' //run="' . a:1 . '"'
   endif
   let command = command . '; fi'
 
@@ -226,6 +226,7 @@ function! csharp#build()
 
   let csproj = s:findCsproj(expand('%:p'))
   call term#executeInTerm('shell', 'msbuild.exe //v:q ' . s:toBashPath(csproj))
+  sleep
   call term#defaultTerm()
 endfunction
 
