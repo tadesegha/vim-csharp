@@ -38,6 +38,28 @@ if has('win32') || has('win64')
     call insert(content, insertion, insertionIndex)
     call s:writeCsproj(content, csproj)
   endfunction
+
+  function! csharp#nunitTests(...)
+    let csproj = s:findCsproj(expand('%:p'))
+    if !(s:match(csproj, 'Test'))
+      throw 'could not find a test csproj file'
+    endif
+
+    call csharp#build()
+
+    let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
+    let csprojFilename = fnamemodify(csproj, ':t:r')
+    let testAssembly = findfile(csprojFilename . '.dll', csprojDir . "bin/debug/**")
+
+    let command = 'if [[ $? -eq 0 ]] ; then nunit-console.exe ' . s:toBashPath(fnamemodify(testAssembly, ':p'))
+    if (a:0)
+      let command = command . ' //run=' . a:1
+    endif
+    let command = command . '; fi'
+
+    call term#executeInTerm('shell', command)
+    call term#defaultTerm()
+  endfunction
 else
   let s:pathSeparator = '/'
 
@@ -46,7 +68,32 @@ else
 
   function! s:addToCsproj(path)
   endfunction
+
+  function! csharp#nunitTests(...)
+    let command = 'dotnet test'
+    if (a:0)
+      let command = command . ' --filter "FullyQualifiedName~"' . a:1
+    endif
+
+    call term#executeInTerm('shell', command)
+    call term#defaultTerm()
+  endfunction
 endif
+
+function! csharp#nunitTest()
+  let cursorPosition = getcurpos()
+  OmniSharpNavigateUp
+
+  let testName = '.' . expand('<cword>')
+  if testName == ('.' . expand('%:t:r')) || s:match(testName, '^.using$') || s:match(testName, '^.Setup$')
+    let testName = ''
+  endif
+
+  call setpos('.', cursorPosition)
+
+  let fqn = csharp#fqn() . testName
+  call csharp#nunitTests(fqn)
+endfunction
 
 function! csharp#goToAlternate()
   let path = expand('%')
@@ -111,43 +158,6 @@ endfunction
 function! csharp#fqn()
   let class = expand('%:t:r')
   return csharp#namespace() . '.' . class
-endfunction
-
-function! csharp#nunitTests(...)
-  let csproj = s:findCsproj(expand('%:p'))
-  if !(s:match(csproj, 'Test'))
-    throw 'could not find a test csproj file'
-  endif
-
-  call csharp#build()
-
-  let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
-  let csprojFilename = fnamemodify(csproj, ':t:r')
-  let testAssembly = findfile(csprojFilename . '.dll', csprojDir . "bin/debug/**")
-
-  let command = 'if [[ $? -eq 0 ]] ; then nunit-console.exe ' . s:toBashPath(fnamemodify(testAssembly, ':p'))
-  if (a:0)
-    let command = command . ' //run="' . a:1 . '"'
-  endif
-  let command = command . '; fi'
-
-  call term#executeInTerm('shell', command)
-  call term#defaultTerm()
-endfunction
-
-function! csharp#nunitTest(runAllInFile)
-  let cursorPosition = getcurpos()
-  OmniSharpNavigateUp
-
-  let testName = '.' . expand('<cword>')
-  if a:runAllInFile || testName == ('.' . expand('%:t:r')) || s:match(testName, '^.using$') || s:match(testName, '^.Setup$')
-    let testName = ''
-  endif
-
-  call setpos('.', cursorPosition)
-
-  let fqn = csharp#fqn() . testName
-  call csharp#nunitTests(fqn)
 endfunction
 
 function! csharp#newItem()
