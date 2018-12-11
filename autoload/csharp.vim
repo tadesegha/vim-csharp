@@ -51,11 +51,11 @@ if has('win32') || has('win64')
     let csprojFilename = fnamemodify(csproj, ':t:r')
     let testAssembly = findfile(csprojFilename . '.dll', csprojDir . "bin/debug/**")
 
-    let command = 'if [[ $? -eq 0 ]] ; then nunit-console.exe ' . s:toBashPath(fnamemodify(testAssembly, ':p'))
+    let command = 'if ($LASTEXITCODE -eq 0) { nunit-console.exe ' . fnamemodify(testAssembly, ':p')
     if (a:0)
-      let command = command . ' //run=' . a:1
+      let command = command . ' /run=' . a:1
     endif
-    let command = command . '; fi'
+    let command = command . ' }'
 
     call term#executeInTerm('shell', command)
     call term#defaultTerm()
@@ -80,7 +80,7 @@ else
   endfunction
 endif
 
-function! csharp#nunitTest()
+function! csharp#nunitTest(runAllTestsInFile)
   let cursorPosition = getcurpos()
   OmniSharpNavigateUp
 
@@ -91,8 +91,12 @@ function! csharp#nunitTest()
 
   call setpos('.', cursorPosition)
 
-  let fqn = csharp#fqn() . testName
-  call csharp#nunitTests(fqn)
+  let testPattern = csharp#fqn()
+  if (a:runAllTestsInFile)
+    testPattern += testName
+  endif
+
+  call csharp#nunitTests(testPattern)
 endfunction
 
 function! csharp#goToAlternate()
@@ -235,7 +239,7 @@ function! csharp#build()
   endif
 
   let csproj = s:findCsproj(expand('%:p'))
-  call term#executeInTerm('shell', 'msbuild.exe //v:q ' . s:toBashPath(csproj))
+  call term#executeInTerm('shell', 'msbuild.exe /v:q ' . csproj)
   sleep
   call term#defaultTerm()
 endfunction
@@ -302,11 +306,6 @@ function! s:findInList(list, pattern)
   endfor
 
   return -1
-endfunction
-
-function! s:toBashPath(path)
-  let bashPath = '/' . substitute(a:path, '\', '/', 'g')
-  return substitute(bashPath, '/c:/', '/c/', '')
 endfunction
 
 function! s:match(str, pattern)
