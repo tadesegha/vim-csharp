@@ -92,8 +92,8 @@ function! csharp#nunitTest(runAllTestsInFile)
   call setpos('.', cursorPosition)
 
   let testPattern = csharp#fqn()
-  if (a:runAllTestsInFile)
-    testPattern += testName
+  if (!a:runAllTestsInFile)
+    let testPattern = testPattern . testName
   endif
 
   call csharp#nunitTests(testPattern)
