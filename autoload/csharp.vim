@@ -7,11 +7,14 @@ if has('win32') || has('win64')
     let relativePath = s:relativePath(a:path, csprojDir)
 
     let content = s:readCsproj(csproj)
-    let removalPattern = s:toSearchPattern('<Compile Include="' . relativePath . '"')
-    let removalIndex = s:findInList(content, removalPattern)
+    let compileInstruction = '<Compile Include="' . relativePath . '"'
+    let removalIndex = s:findInList(content, compileInstruction)
 
     if removalIndex == -1
-      throw 'did not find current file in csproj'
+      echo ' '
+      echom 'file: ' . relativePath
+      echom 'csproj: ' . csproj
+      throw 'did not find file in csproj'
     endif
 
     call remove(content, removalIndex)
