@@ -152,6 +152,14 @@ function! csharp#openFile()
   endtry
 endfunction
 
+function! csharp#namespace()
+  let csproj = s:findCsproj(expand('%:p'))
+  let csprojDir = fnamemodify(csproj, ':p:h') . s:pathSeparator
+  let directory = expand('%:p:h')
+
+  return fnamemodify(csprojDir, ':h:t') . '.' . s:relativePath(directory, csprojDir)
+endfunction
+
 function! csharp#fqn()
   let cursorPosition = getcurpos()
 
