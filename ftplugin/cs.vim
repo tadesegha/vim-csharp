@@ -41,8 +41,8 @@ nnoremap <buffer> <LocalLeader>rn :update \| OmniSharpRename<CR>
 nnoremap <buffer> <LocalLeader>ri :update \| OmniSharpRename<CR>
 nnoremap <buffer> <LocalLeader>sp :OmniSharpStopServer<CR>
 nnoremap <buffer> <LocalLeader>ss :OmniSharpStartServer<CR>
-nnoremap <buffer> <LocalLeader>th :OmniSharpHighlightTypes<CR>
-nnoremap <buffer> <LocalLeader>tt :OmniSharpTypeLookup<CR>
+" nnoremap <buffer> <LocalLeader>th :OmniSharpHighlightTypes<CR>
+nnoremap <buffer> <LocalLeader>? :OmniSharpTypeLookup<CR>
 xnoremap <buffer> <LocalLeader>ca :call OmniSharp#GetCodeActions('visual')<CR>
 
 " Ale mappings

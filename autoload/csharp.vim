@@ -61,9 +61,22 @@ if has('win32') || has('win64')
     let command = command . ' }'
 
     call term#executeInTerm('shell', command)
-    call term#defaultTerm()
+    call term#goToTerm("shell")
   endfunction
+
+  function! csharp#build()
+    if (!executable('msbuild.exe'))
+      throw 'could not find msbuild.exe'
+    endif
+
+    let csproj = s:findCsproj(expand('%:p'))
+    call term#executeInTerm('shell', 'msbuild.exe /v:q ' . csproj)
+    sleep
+    call term#goToTerm("shell")
+  endfunction
+
 else
+
   let s:pathSeparator = '/'
 
   function! s:removeFromCsproj(path, ...)
@@ -79,8 +92,14 @@ else
     endif
 
     call term#executeInTerm('shell', command)
-    call term#defaultTerm()
+    call term#goToTerm("shell")
   endfunction
+
+  function! csharp#build()
+    call term#executeInTerm('shell', 'dotnet build')
+    call term#goToTerm("shell")
+  endfunction
+
 endif
 
 function! csharp#nunitTest(runAllTestsInFile)
@@ -241,17 +260,6 @@ function! csharp#moveItem()
   call csharp#deleteItem(v:false)
   call s:addToCsproj(path)
   execute 'edit ' . path
-endfunction
-
-function! csharp#build()
-  if (!executable('msbuild.exe'))
-    throw 'could not find msbuild.exe'
-  endif
-
-  let csproj = s:findCsproj(expand('%:p'))
-  call term#executeInTerm('shell', 'msbuild.exe /v:q ' . csproj)
-  sleep
-  call term#defaultTerm()
 endfunction
 
 function! s:findPattern(absolutePath, pattern)
