@@ -16,34 +16,34 @@ nnoremap <buffer> <LocalLeader>e :call csharp#openFile()<cr>
 nnoremap <buffer> <LocalLeader>ga :call csharp#goToAlternate()<cr>
 nnoremap <buffer> <LocalLeader>vsga :call csharp#goToAlternate()<cr><c-w>o:vs #<cr><c-w>p
 
-nnoremap <buffer> <LocalLeader>rt :update \| call csharp#nunitTest(v:false)<cr>
-nnoremap <buffer> <LocalLeader>rft :update \| call csharp#nunitTest(v:true)<cr>
-nnoremap <buffer> <LocalLeader>rat :update \| call csharp#nunitTests()<cr>
+" nnoremap <buffer> <LocalLeader>rt :update \| call csharp#nunitTest(v:false)<cr>
+" nnoremap <buffer> <LocalLeader>rft :update \| call csharp#nunitTest(v:true)<cr>
+" nnoremap <buffer> <LocalLeader>rat :update \| call csharp#nunitTests()<cr>
 
 " OmniSharp commands
 command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
 
 " OmniSharp mappings
-nnoremap <buffer> <LocalLeader>sh :OmniSharpSignatureHelp<cr>
-nnoremap <buffer> <LocalLeader>j :OmniSharpNavigateDown<cr>
-nnoremap <buffer> <LocalLeader>k :OmniSharpNavigateUp<cr>
-nnoremap <buffer> <LocalLeader>ca :OmniSharpGetCodeActions<cr>
-nnoremap <buffer> <LocalLeader>cf :OmniSharpCodeFormat<cr>
-nnoremap <buffer> <LocalLeader>dc :OmniSharpDocumentation<cr>
-nnoremap <buffer> <LocalLeader>fi :OmniSharpFindImplementations<cr>
-nnoremap <buffer> <LocalLeader>fm :OmniSharpFindMembers<cr>
-nnoremap <buffer> <LocalLeader>fs :OmniSharpFindSymbol<cr>
-nnoremap <buffer> <LocalLeader>fu :OmniSharpFindUsages<cr>
-nnoremap <buffer> <LocalLeader>fx :OmniSharpFixUsings<cr>
-nnoremap <buffer> <LocalLeader>gd :OmniSharpGotoDefinition<cr>
-nnoremap <buffer> <LocalLeader>sp :OmniSharpStopServer<cr>
-nnoremap <buffer> <LocalLeader>ss :OmniSharpStartServer<cr>
-nnoremap <buffer> <LocalLeader>th :OmniSharpHighlightTypes<cr>
-nnoremap <buffer> <LocalLeader>tl :OmniSharpTypeLookup<cr>
-nnoremap <buffer> <LocalLeader>rn :update \| OmniSharpRename<cr>
-nnoremap <buffer> <LocalLeader>ri :update \| OmniSharpRename<cr>
-
-xnoremap <buffer> <LocalLeader>ca :call OmniSharp#GetCodeActions('visual')<cr>
+inoremap <buffer> <C-\> <C-o>:OmniSharpSignatureHelp<CR>
+nnoremap <buffer> <C-\> :OmniSharpSignatureHelp<CR>
+nnoremap <buffer> <LocalLeader>j :OmniSharpNavigateDown<CR>
+nnoremap <buffer> <LocalLeader>k :OmniSharpNavigateUp<CR>
+nnoremap <buffer> <LocalLeader>ca :OmniSharpGetCodeActions<CR>
+nnoremap <buffer> <LocalLeader>cf :OmniSharpCodeFormat<CR>
+nnoremap <buffer> <LocalLeader>dc :OmniSharpDocumentation<CR>
+nnoremap <buffer> <LocalLeader>fi :call setqflist([]) \| OmniSharpFindImplementations<CR>
+nnoremap <buffer> <LocalLeader>fm :call setqflist([]) \| OmniSharpFindMembers<CR>
+nnoremap <buffer> <LocalLeader>fs :OmniSharpFindSymbol<CR>
+nnoremap <buffer> <LocalLeader>fu :call setqflist([]) \| OmniSharpFindUsages<CR>
+nnoremap <buffer> <LocalLeader>fx :OmniSharpFixUsings<CR>
+nnoremap <buffer> <LocalLeader>gd :OmniSharpGotoDefinition<CR>
+nnoremap <buffer> <LocalLeader>rn :update \| OmniSharpRename<CR>
+nnoremap <buffer> <LocalLeader>ri :update \| OmniSharpRename<CR>
+nnoremap <buffer> <LocalLeader>sp :OmniSharpStopServer<CR>
+nnoremap <buffer> <LocalLeader>ss :OmniSharpStartServer<CR>
+" nnoremap <buffer> <LocalLeader>th :OmniSharpHighlightTypes<CR>
+nnoremap <buffer> <LocalLeader>? :OmniSharpTypeLookup<CR>
+xnoremap <buffer> <LocalLeader>ca :call OmniSharp#GetCodeActions('visual')<CR>
 
 " Ale mappings
 nnoremap <buffer> <LocalLeader><LocalLeader> :ALENextWrap<cr>
