@@ -84,18 +84,19 @@ else
 endif
 
 function! csharp#nunitTest(runAllTestsInFile)
-  let cursorPosition = getcurpos()
-  OmniSharpNavigateUp
-
-  let testName = '.' . expand('<cword>')
-  if testName == ('.' . expand('%:t:r')) || s:match(testName, '^.using$') || s:match(testName, '^.Setup$')
-    let testName = ''
-  endif
-
-  call setpos('.', cursorPosition)
-
   let testPattern = csharp#fqn()
+
   if (!a:runAllTestsInFile)
+    let cursorPosition = getcurpos()
+    OmniSharpNavigateUp
+
+    let testName = '.' . expand('<cword>')
+    if testName == ('.' . expand('%:t:r')) || s:match(testName, '^.using$') || s:match(testName, '^.Setup$')
+      let testName = ''
+    endif
+
+    call setpos('.', cursorPosition)
+
     let testPattern = testPattern . testName
   endif
 
@@ -151,20 +152,18 @@ function! csharp#openFile()
   endtry
 endfunction
 
-function! csharp#namespace()
-  let path = expand('%:p')
-  let csproj = s:findCsproj(path)
-  let csprojDir = fnamemodify(csproj, ':p:h')
-  let relativePath = s:relativePath(path, csprojDir)
-
-  let suffix = fnamemodify(relativePath, ':h:r')
-  let suffix = (suffix == s:pathSeparator) ? '' : substitute(suffix, s:pathSeparator, '.', 'g')
-  return fnamemodify(csprojDir, ':t') . suffix
-endfunction
-
 function! csharp#fqn()
-  let class = expand('%:t:r')
-  return csharp#namespace() . '.' . class
+  let cursorPosition = getcurpos()
+
+  call search('namespace \zs', 'b')
+  let namespace = expand('<cWORD>')
+  call setpos('.', cursorPosition)
+
+  call search('class \zs', 'b')
+  let class = expand('<cWORD>')
+  call setpos('.', cursorPosition)
+
+  return namespace . '.' . class
 endfunction
 
 function! csharp#newItem()
