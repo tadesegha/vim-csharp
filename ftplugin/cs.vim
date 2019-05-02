@@ -16,10 +16,6 @@ nnoremap <buffer> <LocalLeader>e :call csharp#openFile()<cr>
 nnoremap <buffer> <LocalLeader>ga :call csharp#goToAlternate()<cr>
 nnoremap <buffer> <LocalLeader>vsga :call csharp#goToAlternate()<cr><c-w>o:vs #<cr><c-w>p
 
-" nnoremap <buffer> <LocalLeader>rt :update \| call csharp#nunitTest(v:false)<cr>
-" nnoremap <buffer> <LocalLeader>rft :update \| call csharp#nunitTest(v:true)<cr>
-" nnoremap <buffer> <LocalLeader>rat :update \| call csharp#nunitTests()<cr>
-
 " OmniSharp commands
 command! -nargs=1 Rename :call OmniSharp#RenameTo("<args>")
 

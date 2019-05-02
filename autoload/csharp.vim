@@ -186,7 +186,7 @@ function! csharp#fqn()
   let namespace = expand('<cWORD>')
   call setpos('.', cursorPosition)
 
-  call search('class \zs', 'b')
+  call search('public class \zs', 'b')
   let class = expand('<cWORD>')
   call setpos('.', cursorPosition)
 
